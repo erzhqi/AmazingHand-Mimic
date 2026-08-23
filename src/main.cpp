@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <SCServo.h>
 
+// Two independent servo communication buses for arm and hand
 SMS_STS handServo;
 SMS_STS armServo;
 
@@ -10,9 +11,12 @@ SMS_STS armServo;
 #define ARM_RX_PIN 26
 #define ARM_TX_PIN 27
 
+// Two serial buses for hand and arm
 HardwareSerial handSerial(1);
 HardwareSerial armSerial(2);
 
+
+// Setting constants for each motor
 const uint8_t FINGER1_RID = 1;
 const uint8_t FINGER1_LID = 2;
 const uint8_t FINGER2_RID = 3;
@@ -53,6 +57,16 @@ uint8_t INDEX[2] = {1, 2};
   int16_t THUMB_POSITION_CLOSE[2] = {1068, 3944};
   int16_t THUMB_POSITION_OPEN[2] = {3999, 1184};
 
+  int16_t FINGERS_2D_CLOSE[3][2]{
+    {3184, 1101},
+    {3176, 835},
+    {1068, 3944}
+  };
+  int16_t FINGERS_2D_OPEN[3][2]{
+    {1926, 2169},
+    {2040, 2108},
+    {3999, 1184}
+  };
 
   int16_t ALL_POSITION_CLOSE[8] = {3044, 1038, 3184, 1101, 3176, 835, 1068, 3944};
   int16_t ALL_POSITION_OPEN[8] = {1875, 2183, 1926, 2169, 2040, 2108, 3999, 1184};
@@ -61,7 +75,8 @@ uint8_t INDEX[2] = {1, 2};
   uint16_t SPEED[2] = {1000, 1000};
   uint8_t ACCELERATION[2] = {50, 50};
 
-void servo_check();
+void ping_servos();
+void finger_movement_test(int index);
 
 void setup() {
   // put your setup code here, to run once:
@@ -79,47 +94,9 @@ void setup() {
   armServo.pSerial = &armSerial;
   delay(200);
 
-  // Pinging all the servos
-  // servo_check();
-
-  Serial.println("Beginning Positions:");
-  Serial.println(handServo.ReadPos(1));
-  Serial.println(handServo.ReadPos(2));
-  Serial.println("Beginning to move finger");
-  handServo.SyncWritePosEx(INDEX, 2, INDEX_POSITION_OPEN, SPEED, ACCELERATION);
-  delay(2000);
-  Serial.println("Finger finished moving");
-  handServo.SyncWritePosEx(INDEX, 2, INDEX_POSITION_CLOSE, SPEED, ACCELERATION);
-  delay(2000);
-  Serial.println("Ending Positions:");
-  Serial.println(handServo.ReadPos(1));
-  Serial.println(handServo.ReadPos(2));
-
-  Serial.println("Beginning Positions:");
-  Serial.println(handServo.ReadPos(1));
-  Serial.println(handServo.ReadPos(2));
-  Serial.println("Beginning to move finger");
-  handServo.SyncWritePosEx(MIDDLE, 2, MIDDLE_POSITION_OPEN, SPEED, ACCELERATION);
-  delay(2000);
-  Serial.println("Finger finished moving");
-  handServo.SyncWritePosEx(MIDDLE, 2, MIDDLE_POSITION_CLOSE, SPEED, ACCELERATION);
-  delay(2000);
-  Serial.println("Ending Positions:");
-  Serial.println(handServo.ReadPos(1));
-  Serial.println(handServo.ReadPos(2));
-
-  Serial.println("Beginning Positions:");
-  Serial.println(handServo.ReadPos(1));
-  Serial.println(handServo.ReadPos(2));
-  Serial.println("Beginning to move finger");
-  handServo.SyncWritePosEx(RING, 2, RING_POSITION_OPEN, SPEED, ACCELERATION);
-  delay(2000);
-  Serial.println("Finger finished moving");
-  handServo.SyncWritePosEx(RING, 2, RING_POSITION_CLOSE, SPEED, ACCELERATION);
-  delay(2000);
-  Serial.println("Ending Positions:");
-  Serial.println(handServo.ReadPos(1));
-  Serial.println(handServo.ReadPos(2));
+  finger_movement_test(0);
+  finger_movement_test(1);
+  finger_movement_test(2);
 
 }
 
@@ -153,5 +130,48 @@ void servo_check(){
     else{
       Serial.println("No Response from Servo " + String(arm_servo_list[i]));
     }
+  }
+}
+
+void finger_movement_test(int index){  
+  Serial.println("Beginning Positions:");
+  if (index == 0){
+    Serial.println(handServo.ReadPos(1));
+    Serial.println(handServo.ReadPos(2));
+    Serial.println("Beginning to move finger");
+    handServo.SyncWritePosEx(INDEX, 2, INDEX_POSITION_OPEN, SPEED, ACCELERATION);
+    delay(2000);
+    Serial.println("Finger finished moving");
+    handServo.SyncWritePosEx(INDEX, 2, INDEX_POSITION_CLOSE, SPEED, ACCELERATION);
+    delay(2000);
+    Serial.println("Ending Positions:");
+    Serial.println(handServo.ReadPos(1));
+    Serial.println(handServo.ReadPos(2));
+  }
+  else if (index == 1){
+    Serial.println(handServo.ReadPos(3));
+    Serial.println(handServo.ReadPos(4));
+    Serial.println("Beginning to move finger");
+    handServo.SyncWritePosEx(MIDDLE, 2, MIDDLE_POSITION_OPEN, SPEED, ACCELERATION);
+    delay(2000);
+    Serial.println("Finger finished moving");
+    handServo.SyncWritePosEx(MIDDLE, 2, MIDDLE_POSITION_CLOSE, SPEED, ACCELERATION);
+    delay(2000);
+    Serial.println("Ending Positions:");
+    Serial.println(handServo.ReadPos(3));
+    Serial.println(handServo.ReadPos(4));
+  }
+  else if (index == 2){
+    Serial.println(handServo.ReadPos(5));
+    Serial.println(handServo.ReadPos(6));
+    Serial.println("Beginning to move finger");
+    handServo.SyncWritePosEx(RING, 2, RING_POSITION_OPEN, SPEED, ACCELERATION);
+    delay(2000);
+    Serial.println("Finger finished moving");
+    handServo.SyncWritePosEx(RING, 2, RING_POSITION_CLOSE, SPEED, ACCELERATION);
+    delay(2000);
+    Serial.println("Ending Positions:");
+    Serial.println(handServo.ReadPos(5));
+    Serial.println(handServo.ReadPos(6));
   }
 }
