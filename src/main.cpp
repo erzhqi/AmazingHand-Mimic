@@ -72,7 +72,7 @@ uint8_t INDEX[2] = {1, 2};
   int16_t ALL_POSITION_OPEN[8] = {1875, 2183, 1926, 2169, 2040, 2108, 3999, 1184};
 
 
-  uint16_t SPEED[2] = {1000, 1000};
+  uint16_t SPEED[2] = {500, 500};
   uint8_t ACCELERATION[2] = {50, 50};
 
 void ping_servos();
@@ -94,9 +94,7 @@ void setup() {
   armServo.pSerial = &armSerial;
   delay(200);
 
-  finger_movement_test(0);
-  finger_movement_test(1);
-  finger_movement_test(2);
+  finger_movement_test(3);
 
 }
 
@@ -151,10 +149,10 @@ void finger_movement_test(int index){
   else if (index == 1){
     Serial.println(handServo.ReadPos(3));
     Serial.println(handServo.ReadPos(4));
-    Serial.println("Beginning to move finger");
+    Serial.println("Beginning to move MIDDLE finger");
     handServo.SyncWritePosEx(MIDDLE, 2, MIDDLE_POSITION_OPEN, SPEED, ACCELERATION);
     delay(2000);
-    Serial.println("Finger finished moving");
+    Serial.println("MIDDLE finger finished moving");
     handServo.SyncWritePosEx(MIDDLE, 2, MIDDLE_POSITION_CLOSE, SPEED, ACCELERATION);
     delay(2000);
     Serial.println("Ending Positions:");
@@ -164,11 +162,24 @@ void finger_movement_test(int index){
   else if (index == 2){
     Serial.println(handServo.ReadPos(5));
     Serial.println(handServo.ReadPos(6));
-    Serial.println("Beginning to move finger");
+    Serial.println("Beginning to move RING finger");
     handServo.SyncWritePosEx(RING, 2, RING_POSITION_OPEN, SPEED, ACCELERATION);
     delay(2000);
-    Serial.println("Finger finished moving");
+    Serial.println("RING finger finished moving");
     handServo.SyncWritePosEx(RING, 2, RING_POSITION_CLOSE, SPEED, ACCELERATION);
+    delay(2000);
+    Serial.println("Ending Positions:");
+    Serial.println(handServo.ReadPos(5));
+    Serial.println(handServo.ReadPos(6));
+  }
+  else if (index == 3){
+    Serial.println(handServo.ReadPos(7));
+    Serial.println(handServo.ReadPos(8));
+    Serial.println("Beginning to move THUMB");
+    handServo.SyncWritePosEx(THUMB, 2, THUMB_POSITION_OPEN, SPEED, ACCELERATION);
+    delay(2000);
+    Serial.println("THUMB finished moving");
+    handServo.SyncWritePosEx(THUMB, 2, THUMB_POSITION_CLOSE, SPEED, ACCELERATION);
     delay(2000);
     Serial.println("Ending Positions:");
     Serial.println(handServo.ReadPos(5));
