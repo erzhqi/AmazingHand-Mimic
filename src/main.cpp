@@ -72,7 +72,7 @@ uint8_t INDEX[2] = {1, 2};
   int16_t ALL_POSITION_OPEN[8] = {1875, 2183, 1926, 2169, 2040, 2108, 3999, 1184};
 
 
-  uint16_t SPEED[2] = {500, 500};
+  uint16_t SPEED[2] = {1000, 1000};
   uint8_t ACCELERATION[2] = {50, 50};
 
 void ping_servos();
