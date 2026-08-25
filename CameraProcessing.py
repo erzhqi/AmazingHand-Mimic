@@ -3,28 +3,29 @@ import mediapipe as mp
 import time
 
 startTime = time.time()
+motorsActive = False # Initially, motors are off
 
 videoCapture = cv2.VideoCapture(0)
 videoCapture.set(cv2.CAP_PROP_FRAME_WIDTH, 600)
 videoCapture.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
 
 BaseOptions = mp.tasks.BaseOptions
-HandLandmarker = mp.tasks.vision.HandLandmarker
-HandLandmarkerOptions = mp.tasks.vision.HandLandmarkerOptions
+GestureRecognizer = mp.tasks.vision.GestureRecognizer
+GestureRecognizerOptions = mp.tasks.vision.GestureRecognizerOptions
 VisionRunningMode = mp.tasks.vision.RunningMode
 
 mpHandsConnections = mp.solutions.hands.HAND_CONNECTIONS
 
-options = HandLandmarkerOptions(
+options = GestureRecognizerOptions(
     base_options = BaseOptions(
-        model_asset_path="hand_landmarker.task",
+        model_asset_path="gesture_recognizer.task",
         delegate = BaseOptions.Delegate.CPU),
     running_mode = VisionRunningMode.VIDEO,
     num_hands = 1,
     # min_hand_detection_confidence = 0.7 --> Threshold for initial hand detection
 )
 
-with HandLandmarker.create_from_options(options) as landmarker:
+with GestureRecognizer.create_from_options(options) as recognizer:
 
     while videoCapture.isOpened():
         isRead, frame = videoCapture.read()
@@ -32,10 +33,10 @@ with HandLandmarker.create_from_options(options) as landmarker:
             RGBFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # Converting from BGR (OpenCV) to RGB (Mediapipe)
             mpFrame = mp.Image(image_format=mp.ImageFormat.SRGB, data=RGBFrame)
             frameTimestamp = int((time.time() - startTime) * 1000)
-            mpResult = landmarker.detect_for_video(mpFrame, frameTimestamp)
 
+            mpResult = recognizer.recognize_for_video(mpFrame, frameTimestamp)
             if mpResult.hand_landmarks:
-                for handLandmarks in mpResult.hand_landmarks:
+                for handIndex, handLandmarks in enumerate(mpResult.hand_landmarks):
                     points = []
                     for index, landmark in enumerate(handLandmarks): # Ignores pinky finger (17-20)
                         if index <= 16:
@@ -53,6 +54,12 @@ with HandLandmarker.create_from_options(options) as landmarker:
                         if start in pinkyIndices or end in pinkyIndices:
                             continue
                         cv2.line(frame, points[start], points[end], (0, 255, 0), 1)
+                    if not motorsActive:
+                        whichHand = mpResult.handedness[handIndex][0].category_name
+                        whichGesture = mpResult.gestures[handIndex][0].category_name
+                        if whichHand == "Right" and whichGesture == "Open_Palm":
+                            motorsActive = True
+                            print("Motors Active!")
 
             cv2.imshow("Behold", frame)
             if cv2.waitKey(1) == 113:
