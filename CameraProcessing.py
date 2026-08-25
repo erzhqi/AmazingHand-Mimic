@@ -43,9 +43,9 @@ with HandLandmarker.create_from_options(options) as landmarker:
                             y = int(landmark.y * frame.shape[0])
                             points.append((x, y))
                             cv2.circle(frame, (x, y), 7, (0, 0, 255), -1)
-                            print(points[0])
-                            print(points[0][0])
-                            print(points[0][1])
+                            # print(points[0])
+                            # print(points[0][0])
+                            # print(points[0][1])
 
                     pinkyIndices = {17, 19, 19, 20}
                     for connection in mpHandsConnections:
