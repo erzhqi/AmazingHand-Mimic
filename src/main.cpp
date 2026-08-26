@@ -54,8 +54,8 @@ uint8_t INDEX[2] = {1, 2};
   int16_t RING_POSITION_CLOSE[2] = {3176, 835};
   int16_t RING_POSITION_OPEN[2] = {2040, 2108};
 
-  int16_t THUMB_POSITION_CLOSE[2] = {1068, 3944};
-  int16_t THUMB_POSITION_OPEN[2] = {3999, 1184};
+  int16_t THUMB_POSITION_CLOSE[2] = {3191, 1002};
+  int16_t THUMB_POSITION_OPEN[2] = {1978, 2370};
 
   int16_t FINGERS_2D_CLOSE[3][2]{
     {3184, 1101},
@@ -68,8 +68,8 @@ uint8_t INDEX[2] = {1, 2};
     {3999, 1184}
   };
 
-  int16_t ALL_POSITION_CLOSE[8] = {3044, 1038, 3184, 1101, 3176, 835, 1068, 3944};
-  int16_t ALL_POSITION_OPEN[8] = {1875, 2183, 1926, 2169, 2040, 2108, 3999, 1184};
+  int16_t ALL_POSITION_CLOSE[8] = {3044, 1038, 3184, 1101, 3176, 835, 3191, 1002};
+  int16_t ALL_POSITION_OPEN[8] = {1875, 2183, 1926, 2169, 2040, 2108, 1978, 2370};
 
 
   uint16_t SPEED[2] = {1000, 1000};
@@ -95,7 +95,6 @@ void setup() {
   delay(200);
 
   finger_movement_test(3);
-
 }
 
 void loop() {

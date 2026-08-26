@@ -4,6 +4,8 @@ import time
 
 startTime = time.time()
 motorsActive = False # Initially, motors are off
+motorStatus = "Motors: OFF"
+textColor = (0, 0, 255)
 
 videoCapture = cv2.VideoCapture(0)
 videoCapture.set(cv2.CAP_PROP_FRAME_WIDTH, 600)
@@ -29,11 +31,11 @@ with GestureRecognizer.create_from_options(options) as recognizer:
 
     while videoCapture.isOpened():
         isRead, frame = videoCapture.read()
+        cv2.putText(frame, motorStatus, (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, textColor, 2, cv2.LINE_AA)
         if isRead:
             RGBFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # Converting from BGR (OpenCV) to RGB (Mediapipe)
             mpFrame = mp.Image(image_format=mp.ImageFormat.SRGB, data=RGBFrame)
             frameTimestamp = int((time.time() - startTime) * 1000)
-
             mpResult = recognizer.recognize_for_video(mpFrame, frameTimestamp)
             if mpResult.hand_landmarks:
                 for handIndex, handLandmarks in enumerate(mpResult.hand_landmarks):
@@ -44,21 +46,24 @@ with GestureRecognizer.create_from_options(options) as recognizer:
                             y = int(landmark.y * frame.shape[0])
                             points.append((x, y))
                             cv2.circle(frame, (x, y), 7, (0, 0, 255), -1)
+                            cv2.putText(frame, str(index), (x+7, y+2), cv2.FONT_HERSHEY_COMPLEX, 0.6, (255, 0, 0), 2, cv2.LINE_AA)
                             # print(points[0])
                             # print(points[0][0])
                             # print(points[0][1])
 
-                    pinkyIndices = {17, 19, 19, 20}
+                    pinkyIndices = {17, 18, 19, 20}
                     for connection in mpHandsConnections:
                         start, end = connection
                         if start in pinkyIndices or end in pinkyIndices:
                             continue
                         cv2.line(frame, points[start], points[end], (0, 255, 0), 1)
                     if not motorsActive:
-                        whichHand = mpResult.handedness[handIndex][0].category_name
-                        whichGesture = mpResult.gestures[handIndex][0].category_name
+                        whichHand = mpResult.handedness[0][0].category_name
+                        whichGesture = mpResult.gestures[0][0].category_name
                         if whichHand == "Right" and whichGesture == "Open_Palm":
                             motorsActive = True
+                            motorStatus = "Motors: ON"
+                            textColor = (0, 255, 0)
                             print("Motors Active!")
 
             cv2.imshow("Behold", frame)
