@@ -6,6 +6,7 @@ startTime = time.time()
 motorsActive = False # Initially, motors are off
 motorStatus = "Motors: OFF"
 textColor = (0, 0, 255)
+pinkyIndices = {17, 18, 19, 20}
 
 videoCapture = cv2.VideoCapture(0)
 videoCapture.set(cv2.CAP_PROP_FRAME_WIDTH, 600)
@@ -47,11 +48,7 @@ with GestureRecognizer.create_from_options(options) as recognizer:
                             points.append((x, y))
                             cv2.circle(frame, (x, y), 7, (0, 0, 255), -1)
                             cv2.putText(frame, str(index), (x+7, y+2), cv2.FONT_HERSHEY_COMPLEX, 0.6, (255, 0, 0), 2, cv2.LINE_AA)
-                            # print(points[0])
-                            # print(points[0][0])
-                            # print(points[0][1])
 
-                    pinkyIndices = {17, 18, 19, 20}
                     for connection in mpHandsConnections:
                         start, end = connection
                         if start in pinkyIndices or end in pinkyIndices:
@@ -60,11 +57,20 @@ with GestureRecognizer.create_from_options(options) as recognizer:
                     if not motorsActive:
                         whichHand = mpResult.handedness[0][0].category_name
                         whichGesture = mpResult.gestures[0][0].category_name
+                        gestureScore = mpResult.gestures[0][0].score
+                        cv2.putText(frame, "Gesture: " + str(whichGesture), (50, 150), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+                        cv2.putText(frame, "Score: " + str(gestureScore), (50, 200), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
                         if whichHand == "Right" and whichGesture == "Open_Palm":
                             motorsActive = True
                             motorStatus = "Motors: ON"
                             textColor = (0, 255, 0)
                             print("Motors Active!")
+                            cv2.waitKey(2000)
+                            maxDistIndexf = int((((points[8][0]-points[5][0])**2 + (points[8][1]-points[5][1])**2)**0.5)) / 2
+                    if motorsActive:
+                        distanceIndexf = int((((points[8][0]-points[5][0])**2 + (points[8][1]-points[5][1])**2)**0.5)) / 2
+                        percentBend = round((maxDistIndexf - distanceIndexf) / maxDistIndexf, 3) 
+                        cv2.putText(frame, str(percentBend*100) + "%", (50, 100), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
 
             cv2.imshow("Behold", frame)
             if cv2.waitKey(1) == 113:
