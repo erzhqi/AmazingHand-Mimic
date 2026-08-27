@@ -15,7 +15,6 @@ SMS_STS armServo;
 HardwareSerial handSerial(1);
 HardwareSerial armSerial(2);
 
-
 // Setting constants for each motor
 const uint8_t FINGER1_RID = 1;
 const uint8_t FINGER1_LID = 2;
@@ -39,41 +38,44 @@ uint8_t arm_servo_list[] = {ARM1, ARM2, ARM3, ARM4, ARM5};
 const uint8_t NUM_ARM_SERVOS = sizeof(arm_servo_list);
 
 uint8_t INDEX[2] = {1, 2};
-  uint8_t MIDDLE[2] = {3, 4};
-  uint8_t RING[2] = {5, 6};
-  uint8_t THUMB[2] = {7, 8};
+uint8_t MIDDLE[2] = {3, 4};
+uint8_t RING[2] = {5, 6};
+uint8_t THUMB[2] = {7, 8};
 
-  uint8_t ALL_FINGERS[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+uint8_t ALL_FINGERS[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 
-  int16_t INDEX_POSITION_CLOSE[2] = {3044, 1038};
-  int16_t INDEX_POSITION_OPEN[2] = {1875, 2183};
+int16_t INDEX_POSITION_CLOSE[2] = {3044, 1038};
+int16_t INDEX_POSITION_OPEN[2] = {1875, 2183};
   
-  int16_t MIDDLE_POSITION_CLOSE[2] = {3184, 1101};
-  int16_t MIDDLE_POSITION_OPEN[2] = {1926, 2169};
+int16_t MIDDLE_POSITION_CLOSE[2] = {3184, 1101};
+int16_t MIDDLE_POSITION_OPEN[2] = {1926, 2169};
 
-  int16_t RING_POSITION_CLOSE[2] = {3176, 835};
-  int16_t RING_POSITION_OPEN[2] = {2040, 2108};
+int16_t RING_POSITION_CLOSE[2] = {3176, 835};
+int16_t RING_POSITION_OPEN[2] = {2040, 2108};
 
-  int16_t THUMB_POSITION_CLOSE[2] = {3191, 1002};
-  int16_t THUMB_POSITION_OPEN[2] = {1978, 2370};
+int16_t THUMB_POSITION_CLOSE[2] = {3191, 1002};
+int16_t THUMB_POSITION_OPEN[2] = {1978, 2370};
 
-  int16_t FINGERS_2D_CLOSE[3][2]{
-    {3184, 1101},
-    {3176, 835},
-    {1068, 3944}
-  };
-  int16_t FINGERS_2D_OPEN[3][2]{
-    {1926, 2169},
-    {2040, 2108},
-    {3999, 1184}
-  };
+int16_t FINGERS_2D_CLOSE[3][2]{
+  {3184, 1101},
+  {3176, 835},
+  {1068, 3944}
+};
+int16_t FINGERS_2D_OPEN[3][2]{
+  {1926, 2169},
+  {2040, 2108},
+  {3999, 1184}
+};
 
-  int16_t ALL_POSITION_CLOSE[8] = {3044, 1038, 3184, 1101, 3176, 835, 3191, 1002};
-  int16_t ALL_POSITION_OPEN[8] = {1875, 2183, 1926, 2169, 2040, 2108, 1978, 2370};
+int16_t ALL_POSITION_CLOSE[8] = {3044, 1038, 3184, 1101, 3176, 835, 3191, 1002};
+int16_t ALL_POSITION_OPEN[8] = {1875, 2183, 1926, 2169, 2040, 2108, 1978, 2370};
 
 
-  uint16_t SPEED[2] = {1000, 1000};
-  uint8_t ACCELERATION[2] = {50, 50};
+uint16_t SPEED[2] = {1000, 1000};
+uint8_t ACCELERATION[2] = {50, 50};
+
+String pythonText;
+boolean motorsOn = false;
 
 void ping_servos();
 void finger_movement_test(int index);
@@ -82,7 +84,6 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   delay(1000);
-  Serial.println("Beginning Test");
 
   // Initializing serial for hand
   handSerial.begin(1000000, SERIAL_8N1, HAND_RX_PIN, HAND_TX_PIN);
@@ -93,12 +94,25 @@ void setup() {
   armSerial.begin(1000000, SERIAL_8N1, ARM_RX_PIN, ARM_TX_PIN);
   armServo.pSerial = &armSerial;
   delay(200);
-
-  finger_movement_test(3);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  if (Serial.available() > 0){
+    pythonText = Serial.readStringUntil('\n');
+    pythonText.trim();
+    if (pythonText == "Motors Active!"){
+      motorsOn = true;
+      Serial.println("Motors Active");
+    }
+    else if (motorsOn){
+
+      float bendAmount = pythonText.toFloat();
+      Serial.println(pythonText);
+      int16_t THUMB_POSITION[2] = {1978+round(1213*bendAmount), 2370-round(1002*bendAmount)};
+      handServo.SyncWritePosEx(THUMB, 2, THUMB_POSITION, SPEED, ACCELERATION);
+      }
+    }
 }
 void servo_check(){
   Serial.println("Checking HAND Servos:");
