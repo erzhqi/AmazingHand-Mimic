@@ -56,29 +56,16 @@ int16_t RING_POSITION_OPEN[2] = {2040, 2108};
 int16_t THUMB_POSITION_CLOSE[2] = {3191, 1002};
 int16_t THUMB_POSITION_OPEN[2] = {1978, 2370};
 
-int16_t FINGERS_2D_CLOSE[3][2]{
-  {3184, 1101},
-  {3176, 835},
-  {1068, 3944}
-};
-int16_t FINGERS_2D_OPEN[3][2]{
-  {1926, 2169},
-  {2040, 2108},
-  {3999, 1184}
-};
-
-int16_t ALL_POSITION_CLOSE[8] = {3044, 1038, 3184, 1101, 3176, 835, 3191, 1002};
-int16_t ALL_POSITION_OPEN[8] = {1875, 2183, 1926, 2169, 2040, 2108, 1978, 2370};
-
-
 uint16_t SPEED[2] = {1000, 1000};
 uint8_t ACCELERATION[2] = {50, 50};
 
 String pythonText;
 boolean motorsOn = false;
+double bendPercentages[4];
 
 void ping_servos();
 void finger_movement_test(int index);
+void parseValues(String originalString, double bendValues[4]);
 
 void setup() {
   // put your setup code here, to run once:
@@ -106,14 +93,27 @@ void loop() {
       Serial.println("Motors Active");
     }
     else if (motorsOn){
-
-      float bendAmount = pythonText.toFloat();
       Serial.println(pythonText);
-      int16_t THUMB_POSITION[2] = {1978+round(1213*bendAmount), 2370-round(1002*bendAmount)};
-      handServo.SyncWritePosEx(THUMB, 2, THUMB_POSITION, SPEED, ACCELERATION);
+      parseValues(pythonText, bendPercentages);
+      int16_t HAND_BEND_POSITIONS[8] = {
+        1875+round(1169*bendPercentages[0]), 2183-round(1145*bendPercentages[0]),
+        1926+round(1258*bendPercentages[1]), 2169-round(1068*bendPercentages[1]),
+        2040+round(1136*bendPercentages[2]), 2108-round(1273*bendPercentages[2]),
+        1978+round(1213*bendPercentages[3]), 2370-round(1368*bendPercentages[3])
+      };
+      handServo.SyncWritePosEx(ALL_FINGERS, 8, HAND_BEND_POSITIONS, SPEED, ACCELERATION);
       }
     }
 }
+
+void parseValues(String originalString, double bendValues[4]){
+  for (int i = 0; i < 4; i ++){
+    int indexComma = originalString.indexOf(',');
+    bendValues[i] = (originalString.substring(0, indexComma)).toDouble();
+    originalString = originalString.substring(indexComma+1);
+  }
+}
+
 void servo_check(){
   Serial.println("Checking HAND Servos:");
   for (int i = 0; i < NUM_HAND_SERVOS; i++){

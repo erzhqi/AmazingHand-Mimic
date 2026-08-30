@@ -73,8 +73,6 @@ with GestureRecognizer.create_from_options(options) as recognizer:
                         whichHand = mpResult.handedness[0][0].category_name
                         whichGesture = mpResult.gestures[0][0].category_name
                         gestureScore = mpResult.gestures[0][0].score
-                        cv2.putText(frame, "Gesture: " + str(whichGesture), (50, 150), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
-                        cv2.putText(frame, "Score: " + str(gestureScore), (50, 200), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
 
                         if whichHand == "Right" and whichGesture == "Open_Palm" and gestureScore > 0.70:
                             motorsActive = True
@@ -82,14 +80,36 @@ with GestureRecognizer.create_from_options(options) as recognizer:
                             textColor = (0, 255, 0)
                             esp32.write(b"Motors Active!\n")
                             maxDistIndexf = int((((points[8][0]-points[5][0])**2 + (points[8][1]-points[5][1])**2)**0.5)) / 2
+                            maxDistMiddlef = int((((points[12][0]-points[9][0])**2 + (points[12][1]-points[9][1])**2)**0.5)) / 2
+                            maxDistRingf = int((((points[16][0]-points[13][0])**2 + (points[16][1]-points[13][1])**2)**0.5)) / 2
+                            maxDistThumb = int((((points[4][0]-points[0][0])**2 + (points[4][1]-points[0][1])**2)**0.5)) / 2
 
                     if motorsActive:
                         distanceIndexf = int((((points[8][0]-points[5][0])**2 + (points[8][1]-points[5][1])**2)**0.5)) / 2
-                        percentBend = round((maxDistIndexf - distanceIndexf) / maxDistIndexf, 3) 
-                        if percentBend >= 0:
-                            motorBend = str(percentBend)
-                            esp32.write((motorBend + "\n").encode("utf-8"))
-                        cv2.putText(frame, str(percentBend*100) + "%", (50, 100), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+                        distanceMiddlef = int((((points[12][0]-points[9][0])**2 + (points[12][1]-points[9][1])**2)**0.5)) / 2
+                        distanceRingf = int((((points[16][0]-points[13][0])**2 + (points[16][1]-points[13][1])**2)**0.5)) / 2
+                        distanceThumb = int((((points[4][0]-points[0][0])**2 + (points[4][1]-points[0][1])**2)**0.5)) / 2
+
+                        percentBendIndex = round((maxDistIndexf - distanceIndexf) / maxDistIndexf, 2) 
+                        percentBendMiddle = round((maxDistMiddlef - distanceMiddlef) / maxDistMiddlef, 2) 
+                        percentBendRing = round((maxDistRingf - distanceRingf) / maxDistRingf, 2) 
+                        percentBendThumb = round((maxDistThumb - distanceThumb) / maxDistThumb, 2) * 3
+
+                        if percentBendThumb > 1:
+                            percentBendThumb = 1
+
+                        fingerBendList = [percentBendIndex, percentBendMiddle, percentBendRing, percentBendThumb]
+                        motorBend = ""
+                        for i in range(len(fingerBendList)):
+                            if fingerBendList[i] < 0:
+                                fingerBendList[i] = 0
+                            motorBend += str(fingerBendList[i]) + ","
+                        esp32.write((motorBend + "\n").encode("utf-8"))
+                        cv2.putText(frame, "Index Bend: " + str(fingerBendList[0]*100) + "%", (50, 100), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+                        cv2.putText(frame, "Middle Bend: " + str(fingerBendList[1]*100) + "%", (50, 150), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+                        cv2.putText(frame, "Ring Bend: " + str(fingerBendList[2]*100) + "%", (50, 200), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+                        cv2.putText(frame, "Thumb Bend: " + str(fingerBendList[3]*100) + "%", (50, 250), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+
             cv2.imshow("Behold", frame)
             if cv2.waitKey(1) == 113:
                 break
