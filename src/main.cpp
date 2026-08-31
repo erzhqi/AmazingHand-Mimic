@@ -26,7 +26,7 @@ HardwareSerial handSerial(1); // Setting up serial for communication with motors
 
 uint8_t ALL_FINGERS[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 
-uint16_t SPEED[8] = {1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000};
+uint16_t SPEED[8] = {1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500};
 uint8_t ACCELERATION[8] = {50, 50, 50, 50, 50, 50, 50, 50};
 
 String pythonText;
