@@ -43,6 +43,7 @@ void setup() {
   handSerial.begin(1000000, SERIAL_8N1, HAND_RX_PIN, HAND_TX_PIN);
   handServo.pSerial = &handSerial;
   delay(200);
+  Serial.println("GOGOGO");
 }
 
 void loop() {

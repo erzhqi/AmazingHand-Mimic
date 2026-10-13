@@ -1,5 +1,8 @@
 # AmazingHand-Mimic
 Vision-controlled robotic hand project that tracks the user's right hand in real time through the Python OpenCV and MediaPipe libraries. Data is then sent through PySerial to an ESP32 to control the servos on an Amazing Hand by Pollen Robotics.
+<br>
+Refer to the following link for details about the Amazing Hand:
+https://github.com/pollen-robotics/AmazingHand
 
 ## Hardware
 - ESP32 (Freenove WROVER)
@@ -38,6 +41,7 @@ To close the webcam window, click the 'q' key at any time
 
 ## Status
 Initial version: All four fingers move according to your hand
-Future Possible Fixes:
+
+## Future Updates:
 1. After initial detection by right hand, you can switch to control with your left hand
 2. Maybe add side to side movement for fingers
