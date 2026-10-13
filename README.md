@@ -1,6 +1,7 @@
 # AmazingHand-Mimic
 Vision-controlled robotic hand project that tracks the user's right hand in real time through the Python OpenCV and MediaPipe libraries. Data is then sent through PySerial to an ESP32 to control the servos on an Amazing Hand by Pollen Robotics.
 <br>
+<br>
 Refer to the following link for details about the Amazing Hand:
 https://github.com/pollen-robotics/AmazingHand
 
@@ -12,8 +13,8 @@ https://github.com/pollen-robotics/AmazingHand
 
 ## Software Setup
 
-## main.cpp
-Open the project in PlatformIO and upload to your ESP32
+## src/main.cpp
+Ensure that PlatformIO is installed, open the file and upload it to your ESP32 Freenove WROVER
 
 ## CameraProcessing.py
 1. Create a Python Virtual Environment (Version 3.11)
